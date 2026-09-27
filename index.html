@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101934">
+  <meta name="description" content="一座被雪山环抱的像素别墅，雪花、炊烟与灯火在夜色中循环流动。">
+  <title>雪山小筑 · 像素夜景</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23101934'/%3E%3Cpath d='M2 26 13 8l7 11 4-6 7 13Z' fill='%23a7c9ed'/%3E%3Cpath d='m8 17 5-9 5 9-5-3Z' fill='%23fff'/%3E%3C/svg%3E">
+  <style>
+:root{color-scheme:dark;--ink:#dce9ff;--muted:#92a8cb;--line:#425577;--gold:#f5c98b}*{box-sizing:border-box}html,body{min-height:100%;margin:0}body{background:radial-gradient(ellipse at 52% 18%,#27365d 0%,#111b36 56%,#0b1429 100%);color:var(--ink);font-family:ui-monospace,SFMono-Regular,Consolas,"Microsoft YaHei",monospace}.page{width:min(1260px,calc(100vw - 48px));min-height:100svh;margin:auto;display:flex;flex-direction:column;justify-content:center;padding:34px 0 38px}.topline{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;font-size:11px;letter-spacing:.24em;color:#8ba1c7}.scene-shell{position:relative;width:100%;aspect-ratio:16/9;background:#192449;border:1px solid #566184;box-shadow:0 0 0 5px #111b34,0 0 0 6px #34466d,0 27px 65px #0509148c;overflow:hidden}.scene-shell canvas{width:100%;height:100%;display:block;image-rendering:pixelated;image-rendering:crisp-edges}.scene-vignette{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#0e183218,transparent 28%,transparent 72%,#070e2370),linear-gradient(90deg,#070f2c42,transparent 17%,transparent 84%,#070f2c35)}.scene-caption{position:absolute;left:24px;bottom:20px;display:flex;align-items:center;gap:10px;color:#d9e7fdcc;font-size:9px;letter-spacing:.2em;text-shadow:0 2px #0a1027}.caption-line{display:block;width:22px;height:1px;background:#eec9ab}.footer{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-top:25px}.title-wrap{display:flex;align-items:flex-start;gap:14px}.sparkle{font-size:20px;color:var(--gold);padding-top:3px;text-shadow:0 0 14px #e7a25a}h1{font-size:clamp(24px,3vw,34px);line-height:1.15;letter-spacing:.16em;font-weight:600;margin:0 0 8px}p{font-size:12px;color:var(--muted);letter-spacing:.2em;margin:0}.toggle{display:flex;align-items:center;gap:12px;min-height:38px;border:1px solid var(--line);background:#17223d;color:#b6c9e9;padding:0 12px;font:inherit;font-size:11px;letter-spacing:.08em;cursor:pointer;transition:background .2s,border-color .2s}.toggle:hover{background:#223253;border-color:#8195b8}.toggle:focus-visible{outline:2px solid #f5c98b;outline-offset:4px}.toggle-icon{font-size:16px;color:#b9d9f5}.toggle-dot{width:6px;height:6px;background:#a9d7ee;box-shadow:0 0 8px #9dd9fd}.toggle[aria-pressed="false"] .toggle-dot{background:#52617d;box-shadow:none}@media(max-width:650px){.page{width:calc(100vw - 24px);padding:clamp(24px,9vh,70px) 0 24px;justify-content:flex-start}.topline{font-size:9px;letter-spacing:.12em;margin-bottom:11px}.scene-caption{left:12px;bottom:12px;font-size:7px}.footer{padding-top:19px;align-items:flex-start}.title-wrap{gap:8px}.sparkle{font-size:16px}h1{font-size:22px}p{font-size:10px;letter-spacing:.09em}.toggle{font-size:0;gap:6px;min-height:32px;padding:0 8px}.toggle-icon{font-size:15px}.toggle-dot{width:5px;height:5px}}@media(prefers-reduced-motion:reduce){.toggle{transition:none}}
+
+</style>
+</head>
+<body>
+  <main class="page">
+    <div class="topline" aria-hidden="true"><span>ALPINE / 001</span><span>PIXEL LANDSCAPE</span></div>
+    <section class="scene-shell" aria-label="雪山别墅像素动画场景">
+      <canvas id="scene" width="480" height="270" role="img" aria-label="月光下的雪山别墅；雪花飘落，烟囱冒烟，窗户透出暖光，湖面缓缓闪烁。"></canvas>
+      <div class="scene-vignette" aria-hidden="true"></div>
+      <div class="scene-caption" aria-hidden="true"><span class="caption-line"></span><span>46° N / WINTER NIGHT</span></div>
+    </section>
+    <footer class="footer">
+      <div class="title-wrap"><span class="sparkle" aria-hidden="true">✦</span><div><h1>雪山小筑</h1><p>风雪未停，炉火正暖。</p></div></div>
+      <button id="snow-toggle" class="toggle" type="button" aria-pressed="true"><span class="toggle-icon" aria-hidden="true">❄</span><span id="toggle-label">雪花飘落中</span><span class="toggle-dot" aria-hidden="true"></span></button>
+    </footer>
+  </main>
+  <script>
+(() => {
+  'use strict';
+  const canvas = document.getElementById('scene');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  const W = 480, H = 270;
+  ctx.imageSmoothingEnabled = false;
+  const C = {
+    skyTop:'#17264d', skyMid:'#4b4c83', horizon:'#b27a9a', moon:'#ffddb3',
+    far:'#465984', farLit:'#899bc5', mid:'#303e70', midLit:'#7085b5',
+    deep:'#1c2b52', pine:'#14243e', pineLit:'#314469', snow:'#b9cee8',
+    snowBright:'#e0eafa', blueSnow:'#7696c3', shadow:'#506a99',
+    wood:'#4a3240', woodDark:'#2b2637', woodLight:'#75566a',
+    roof:'#29314d', gold:'#ffd38a', fire:'#ffad61', lake:'#213657'
+  };
+  const r=(x,y,w,h,color)=>{ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),Math.ceil(w),Math.ceil(h));};
+  const poly=(pts,color)=>{ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.closePath();ctx.fill();};
+  const line=(x1,y1,x2,y2,color,width=1)=>{ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();};
+  const hash=n=>{let x=Math.sin(n*127.1+78.233)*43758.5453;return x-Math.floor(x);};
+  const stars=Array.from({length:62},(_,i)=>({x:9+hash(i+12)*462,y:5+hash(i+145)*81,s:hash(i+365)>.88?2:1,p:hash(i+411)*6.28}));
+  const snow=Array.from({length:115},(_,i)=>({x:hash(i+100)*W,y:hash(i+200)*H,size:hash(i+300)>.82?2:1,speed:8+hash(i+400)*18,drift:hash(i+500)*5,p:hash(i+600)*6.28}));
+  function sky(t){
+    const g=ctx.createLinearGradient(0,0,0,145);g.addColorStop(0,C.skyTop);g.addColorStop(.62,C.skyMid);g.addColorStop(1,C.horizon);ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    for(const s of stars){let a=.4+.5*(.5+.5*Math.sin(t*1.6+s.p));ctx.globalAlpha=a;r(s.x,s.y,s.s,s.s,C.snowBright);if(s.s===2){r(s.x-2,s.y+1,6,1,C.snowBright);r(s.x+1,s.y-2,1,6,C.snowBright)}}ctx.globalAlpha=1;
+    for(let j=9;j>=1;j--){ctx.globalAlpha=.025;r(87-j,24-j,22+j*2,22+j*2,C.moon)}ctx.globalAlpha=1;
+    r(85,26,23,23,C.moon);r(89,23,15,3,C.moon);r(89,49,15,3,C.moon);r(82,31,3,13,C.moon);r(108,31,3,13,C.moon);
+    r(91,34,4,3,'#e9beaa');r(100,42,3,2,'#e9beaa');r(101,30,2,2,'#e9beaa');
+    for(let i=0;i<8;i++){const x=23+i*59+hash(i+83)*24,y=53+i%3*7;ctx.globalAlpha=.12;r(x,y,18,2,'#f3a8ad');r(x+7,y-2,10,2,'#f3a8ad')}ctx.globalAlpha=1;
+  }
+  function mountains(){
+    poly([[0,142],[0,94],[22,113],[46,76],[67,112],[82,99],[106,132],[130,80],[155,116],[180,105],[200,139],[224,75],[249,102],[267,58],[288,87],[312,70],[343,125],[375,91],[401,126],[430,82],[455,116],[480,94],[480,142]],C.far);
+    poly([[27,96],[46,76],[67,112],[54,102],[46,86],[36,103]],C.farLit);
+    poly([[117,101],[130,80],[155,116],[137,100],[131,88]],C.farLit);
+    poly([[205,111],[224,75],[249,102],[238,96],[224,86]],'#9eb0d4');
+    poly([[244,92],[267,58],[288,87],[277,81],[267,67],[254,88]],C.snowBright);
+    poly([[285,91],[312,70],[343,125],[318,99],[313,78]],'#bdcbe5');
+    poly([[0,156],[0,127],[32,147],[71,111],[100,153],[140,123],[177,160],[218,110],[247,147],[283,115],[318,148],[354,125],[393,157],[440,112],[480,150],[480,173]],C.mid);
+    poly([[44,134],[71,111],[100,153],[72,125],[61,136]],C.midLit);
+    poly([[199,133],[218,110],[247,147],[221,123]],'#93a9cf');
+    poly([[426,132],[440,112],[480,150],[445,123]],C.midLit);
+    for(let i=0;i<55;i++){let x=hash(i+41)*W,y=121+hash(i+91)*38; r(x,y,2,1,i%3?'#576c98':'#869cc1')}
+  }
+  function pine(x,y,s,dark=true){
+    const trunk=dark?'#162039':'#26314e',leaf=dark?C.pine:C.pineLit,snowCol=dark?'#7e9cca':'#a3bce0';
+    r(x-1,y-s*.79,2,s*.79,trunk);
+    for(let k=0;k<4;k++){let yy=y-s*.92+k*s*.19,w=s*(.13+k*.1);poly([[x,yy-s*.12],[x-w,yy+s*.15],[x+w,yy+s*.15]],leaf);if(k<3){r(x-w*.72,yy+s*.09,w*.54,2,snowCol);r(x+1,yy+s*.08,w*.43,2,snowCol)}}
+    r(x-1,y-s*.98,2,3,snowCol);
+  }
+  function forest(t){
+    poly([[0,172],[0,148],[47,150],[82,147],[112,158],[160,146],[215,159],[272,149],[332,155],[380,143],[480,159],[480,185]],'#28395d');
+    for(let i=0;i<44;i++){let x=i*12-5+hash(i+11)*5,y=163+hash(i+60)*15,s=12+hash(i+110)*23;pine(x,y,s,false)}
+    poly([[0,191],[0,175],[45,177],[87,183],[123,174],[173,187],[210,178],[260,186],[311,174],[361,182],[415,174],[480,184],[480,204]],'#1b2b4c');
+    for(let i=0;i<31;i++){let x=i*17-4+hash(i+81)*6,y=193+hash(i+108)*14,s=19+hash(i+130)*31;pine(x,y,s,true)}
+  }
+  function lake(t){
+    poly([[0,218],[28,213],[63,218],[95,208],[150,214],[191,203],[221,213],[273,205],[316,214],[347,207],[390,213],[430,204],[480,211],[480,270],[0,270]],C.lake);
+    for(let i=0;i<43;i++){let x=hash(i+691)*W,y=216+hash(i+898)*54,w=2+hash(i+413)*18;ctx.globalAlpha=.16+hash(i+401)*.18;r(x,y,w,1,i%3?'#718bb1':'#c4b1b9')}ctx.globalAlpha=1;
+    for(let i=0;i<26;i++){let y=222+i*1.7,x=344+Math.sin(i*2.3+t*.8)*14+(i%3)*6;ctx.globalAlpha=.15+.25*(.5+.5*Math.sin(t*2+i));r(x,y,8+i%4*5,1,i%4?'#ffb66e':'#fff0ba')}ctx.globalAlpha=1;
+  }
+  function chalet(t){
+    // The lit terrace and stone base are drawn behind the house.
+    poly([[293,217],[304,182],[441,179],[457,214],[453,236],[294,238]],'#36405b');
+    for(let i=0;i<65;i++){let x=296+hash(i+938)*153,y=203+hash(i+136)*32;r(x,y,5+hash(i+271)*6,2,i%2?'#6b728f':'#505a78')}
+    r(300,198,151,4,'#c9d7ed');r(301,202,150,3,'#647ba5');
+    // Main and side walls.
+    poly([[315,143],[345,110],[391,142],[391,196],[315,196]],C.woodDark);
+    poly([[391,149],[414,127],[447,147],[447,199],[391,199]],C.wood);
+    r(327,146,64,54,C.wood);r(395,157,51,43,'#553b48');
+    for(let y=153;y<198;y+=9){r(327,y,65,2,'#654656');r(395,y+1,51,2,'#694a58')}
+    for(let x=335;x<392;x+=13)r(x,149,2,48,'#765163');
+    // Deep snow on the roof with stepped highlights.
+    poly([[306,145],[345,103],[394,143],[397,150],[345,115],[312,153]],C.roof);
+    poly([[307,143],[345,99],[394,140],[390,143],[345,107],[313,149]],C.snowBright);
+    poly([[391,148],[414,122],[451,146],[449,153],[414,132],[395,154]],C.roof);
+    poly([[392,146],[414,119],[451,143],[448,148],[414,126],[396,150]],'#dce7f7');
+    r(350,104,5,3,C.snowBright);r(362,115,6,3,C.snowBright);r(374,127,6,3,C.snowBright);
+    // Chimney.
+    r(412,103,12,29,'#514455');r(410,100,16,4,'#a9bad8');r(414,104,3,17,'#7b6370');r(410,101,16,2,C.snowBright);
+    // Gable timber.
+    line(344,116,344,141,'#815c64',2);line(327,134,345,114,'#956d71',2);line(345,114,382,143,'#956d71',2);
+    function window(x,y,w,h,phase){const glow=.72+.28*Math.sin(t*2+phase);ctx.globalAlpha=glow;r(x-3,y-3,w+6,h+6,'#9b6258');r(x,y,w,h,C.gold);r(x+2,y+2,w-4,h-4,C.fire);r(x+3,y+2,w-6,2,'#ffe1a0');ctx.globalAlpha=1;r(x+w/2-1,y,2,h,'#463040');r(x,y+h/2,w,2,'#463040');r(x-1,y-1,w+2,2,'#aa7d70')}
+    window(334,151,14,22,0);window(361,151,14,22,1.2);window(407,159,13,20,2.4);window(428,159,11,20,3.6);
+    // Porch and door.
+    r(332,179,45,3,'#bb9f9f');r(326,182,66,4,C.snowBright);r(329,186,61,3,'#614959');
+    r(346,180,15,20,'#352a3d');r(348,182,11,18,'#74494c');r(357,190,2,2,C.gold);
+    r(317,186,4,15,'#6b4b56');r(386,186,4,15,'#6b4b56');
+    // Balcony and railing.
+    r(316,175,76,4,'#77515b');for(let x=320;x<390;x+=10){r(x,167,3,10,'#573a4a');r(x,166,4,2,C.snowBright)}r(317,166,74,2,'#b6c9e7');
+    // Snow piled around the terrace.
+    poly([[292,200],[308,198],[318,203],[334,199],[349,205],[367,200],[388,204],[407,199],[425,205],[453,200],[466,213],[453,216],[296,215]],'#9fb9dc');
+    for(let i=0;i<15;i++)r(300+i*10,204+hash(i+333)*4,8,2,C.snowBright);
+    // Low fence and lamps.
+    for(let i=0;i<7;i++){let x=310+i*20,y=217+(i%2)*2;r(x,y-16,3,18,C.woodDark);r(x-1,y-17,5,2,C.snowBright);if(i<6){r(x+3,y-12,18,2,'#594251');r(x+3,y-6,18,2,'#594251')}}
+    for(let x of [311,431]){r(x,200,3,13,'#392f41');r(x-2,198,7,5,'#ffd991');r(x-3,197,9,2,'#514056');ctx.globalAlpha=.10+.05*Math.sin(t*3+x);r(x-8,192,20,17,C.gold);ctx.globalAlpha=1}
+  }
+  function foreground(t){
+    poly([[0,270],[0,232],[30,224],[60,231],[90,222],[112,234],[145,226],[170,237],[196,223],[219,232],[244,221],[272,235],[295,224],[315,236],[339,225],[363,235],[388,219],[412,227],[444,217],[480,229],[480,270]],'#5875a5');
+    poly([[0,270],[0,238],[35,231],[72,239],[101,229],[137,243],[166,234],[195,244],[222,231],[251,241],[277,231],[306,245],[331,235],[359,244],[390,231],[420,239],[452,227],[480,237],[480,270]],'#adc5e3');
+    // Footpath with alternating moonlit steps.
+    poly([[407,270],[438,243],[455,226],[480,226],[480,270]],'#6e89b5');
+    for(let i=0;i<7;i++){let y=232+i*6,x=446-i*5;r(x,y,18+i*2,2,'#dce9fa');r(x+3,y+2,16+i*2,1,'#4c6591')}
+    for(let i=0;i<34;i++){let x=hash(i+2001)*480,y=238+hash(i+2301)*31;r(x,y,2+hash(i+2200)*4,1,i%2?'#e5efff':'#7d9bc5')}
+    pine(26,245,77);pine(65,258,46);pine(93,243,43);pine(244,237,39);pine(267,260,61);pine(463,245,49);
+    // Very near snowy boughs frame the left and right edges.
+    poly([[0,0],[0,77],[13,90],[5,96],[0,93]],'#112038');pine(10,205,91);
+    pine(478,184,85);pine(440,205,37);
+  }
+  function smoke(t){for(let i=0;i<8;i++){let age=((t*.35+i/8)%1),x=418+Math.sin(age*6.2+i*.6)*5-age*17,y=100-age*49,size=3+age*9;ctx.globalAlpha=(1-age)*.20;r(x,y,size,size*.55,'#d5c9dd')}ctx.globalAlpha=1}
+  function snowfall(t){for(const f of snow){let x=(f.x+t*f.drift+Math.sin(t*.8+f.p)*4)%W,y=(f.y+t*f.speed)%H;ctx.globalAlpha=f.size===2?.78:.53;r(x,y,f.size,f.size,f.size===2?'#e3eafb':'#bfd5ef')}ctx.globalAlpha=1}
+  let snowOn=true;
+  const toggle=document.getElementById('snow-toggle');
+  toggle.addEventListener('click',()=>{snowOn=!snowOn;toggle.setAttribute('aria-pressed',String(snowOn));document.getElementById('toggle-label').textContent=snowOn?'雪花飘落中':'雪花已暂停'});
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+  let start=performance.now(),frozen=0;
+  function frame(now){let t=reduced.matches?frozen:(now-start)/1000;sky(t);mountains();forest(t);lake(t);chalet(t);foreground(t);smoke(t);if(snowOn)snowfall(t);requestAnimationFrame(frame)}
+  reduced.addEventListener('change',()=>{start=performance.now();frozen=0});
+  requestAnimationFrame(frame);
+})();
+
+</script>
+</body>
+</html>
+
+
